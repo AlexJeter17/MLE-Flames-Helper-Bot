@@ -79,6 +79,11 @@ def main():
     except discord.LoginFailure:
         log.error("Discord rejected the token. Check DISCORD_TOKEN in .env.")
         sys.exit(1)
+    except Exception:
+        log.exception("Bot crashed")
+        sys.exit(1)
+    # run() returns normally on Ctrl+C / console close; make that visible in the log.
+    log.info("Bot stopped (Ctrl+C, window closed, or shutdown).")
 
 
 if __name__ == "__main__":
