@@ -1,0 +1,5 @@
+discord.py>=2.7,<3
+psycopg[binary]>=3.3,<4
+python-dotenv>=1.2
+# zoneinfo data (needed on Windows for America/Los_Angeles etc.)
+tzdata>=2026.1
