@@ -23,9 +23,13 @@ def _result(s: SeriesRow) -> str:
     return f" | {score} Tie"
 
 
+def _heading(league: str) -> str:
+    return f"### {leagues.label(league)} {leagues.name(league)}"
+
+
 def _league_block(league: str, series: list[SeriesRow]) -> list[str]:
     by_mode = {s.mode: s for s in series if s.league == league}
-    lines = [f"### {leagues.label(league)}"]
+    lines = [_heading(league)]
     if not by_mode:
         return lines + ["No match scheduled this week"]
 
@@ -49,7 +53,7 @@ def render(season_number: int, week: int, series: list[SeriesRow], season_over: 
     if not groups:
         lines.append(heading)
         for lg in leagues.LEAGUE_ORDER:
-            lines += [f"### {leagues.label(lg)}", "No match scheduled this week"]
+            lines += [_heading(lg), "No match scheduled this week"]
         lines.append(f"-# No Flames fixture found for Match {week} (bye week?) · Season {season_number}")
         return text_replies(lines)
 
