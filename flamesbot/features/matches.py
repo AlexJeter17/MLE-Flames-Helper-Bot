@@ -1,5 +1,6 @@
 """fb.Matches <weekNum>: when each Flames league plays that week (Eastern time), with results once played."""
 import asyncio
+from typing import Callable
 
 import config
 from flamesbot import db, leagues
@@ -9,13 +10,13 @@ from flamesbot.season import number_word, resolve_season, resolve_week
 from flamesbot.timeutil import fmt_day_time
 
 
-def _result(s: SeriesRow) -> str:
-    """'| :FlamesDub: 4-1 W' once games are recorded, else ''."""
+def result_text(s: SeriesRow, partial_note: str = "(in progress)") -> str:
+    """' | :FlamesDub: 4-1 W' once games are recorded, else ''."""
     if s.games == 0:
         return ""
     score = f"{s.team_wins}-{s.opponent_wins}"
     if s.games < config.SERIES_GAMES and not s.full_ncp:
-        return f" | {score} (in progress)"
+        return f" | {score} {partial_note}"
     if s.team_wins > s.opponent_wins:
         return f" | {config.WIN_EMOJI} {score} W"
     if s.team_wins < s.opponent_wins:
@@ -23,13 +24,15 @@ def _result(s: SeriesRow) -> str:
     return f" | {score} Tie"
 
 
-def _heading(league: str) -> str:
+def league_heading(league: str) -> str:
     return f"### {leagues.label(league)} {leagues.name(league)}"
 
 
-def _league_block(league: str, series: list[SeriesRow]) -> list[str]:
+def league_block(league: str, series: list[SeriesRow],
+                 suffix: Callable[[SeriesRow], str] = result_text) -> list[str]:
+    """'### :ML: Master League' then one '2s Sunday 7pm<suffix>' line per mode."""
     by_mode = {s.mode: s for s in series if s.league == league}
-    lines = [_heading(league)]
+    lines = [league_heading(league)]
     if not by_mode:
         return lines + ["No match scheduled this week"]
 
@@ -39,9 +42,9 @@ def _league_block(league: str, series: list[SeriesRow]) -> list[str]:
         if s is None:
             lines.append(f"{short} not scheduled")
         elif s.scheduled_time is None:
-            lines.append(f"{short} time TBD{_result(s)}")
+            lines.append(f"{short} time TBD{suffix(s)}")
         else:
-            lines.append(f"{short} {fmt_day_time(s.scheduled_time)}{_result(s)}")
+            lines.append(f"{short} {fmt_day_time(s.scheduled_time)}{suffix(s)}")
     return lines
 
 
@@ -53,7 +56,7 @@ def render(season_number: int, week: int, series: list[SeriesRow], season_over: 
     if not groups:
         lines.append(heading)
         for lg in leagues.LEAGUE_ORDER:
-            lines += [_heading(lg), "No match scheduled this week"]
+            lines += [league_heading(lg), "No match scheduled this week"]
         lines.append(f"-# No Flames fixture found for Match {week} (bye week?) · Season {season_number}")
         return text_replies(lines)
 
@@ -62,7 +65,7 @@ def render(season_number: int, week: int, series: list[SeriesRow], season_over: 
             lines.append("")
         lines.append(heading if len(groups) == 1 else f"{heading} · Day {i + 1}")
         for lg in leagues.LEAGUE_ORDER:
-            lines += _league_block(lg, group)
+            lines += league_block(lg, group)
         first = group[0]
         where = "home" if first.is_home else "away"
         lines.append(f"-# vs {first.opponent} ({where}) · times in {config.DISPLAY_TZ_LABEL} · Season {season_number}"
