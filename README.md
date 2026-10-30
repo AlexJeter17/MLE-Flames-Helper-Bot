@@ -18,7 +18,7 @@ Prefix `fb.`, case-insensitive. All commands except `fb.help` are **admin only**
 | `fb.help` | Command list with examples |
 
 `weekNum` is the MLE **Match number** (Match 1–10), not the calendar week.
-`season` is optional (`s19` or `19`) and defaults to `CURRENT_SEASON`.
+`season` is optional (`s20` or `20`) and defaults to `CURRENT_SEASON`.
 
 ## Setup
 
@@ -55,7 +55,7 @@ what the bot would send, checking Discord's size limits:
 .venv\Scripts\python preview.py eligibility
 .venv\Scripts\python preview.py salupdate
 .venv\Scripts\python preview.py matches 3
-.venv\Scripts\python preview.py weekresults 3 s19
+.venv\Scripts\python preview.py weekresults 3 s20
 .venv\Scripts\python preview.py all
 ```
 

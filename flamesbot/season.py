@@ -54,7 +54,7 @@ def parse_season(arg: str | None) -> int | None:
         return None
     cleaned = arg.strip().lower().lstrip("s")
     if not cleaned.isdigit():
-        raise UserFacingError(f"`{arg}` isn't a season. Use something like `s19` or `19`.")
+        raise UserFacingError(f"`{arg}` isn't a season. Use something like `s20` or `20`.")
     return int(cleaned)
 
 

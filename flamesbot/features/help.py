@@ -38,7 +38,7 @@ COMMANDS = [
         summary=(
             "When each Flames league plays in that Match week, in Pacific time "
             "(2s and 3s times per league). `weekNum` is the MLE Match number. "
-            "`season` is optional (e.g. `s19`); defaults to the current season."
+            "`season` is optional (e.g. `s20`); defaults to the current season."
         ),
         example="fb.Matches 3",
     ),

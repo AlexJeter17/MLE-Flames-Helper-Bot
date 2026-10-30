@@ -3,8 +3,8 @@
     python preview.py help
     python preview.py eligibility
     python preview.py salupdate
-    python preview.py matches 3 [s19]
-    python preview.py weekresults 3 [s19]
+    python preview.py matches 3 [s20]
+    python preview.py weekresults 3 [s20]
     python preview.py all            # every command, using week 1
 
 Every message is also checked against Discord's size limits.
