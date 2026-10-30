@@ -25,8 +25,8 @@ class Salaries(commands.Cog):
     @tasks.loop(minutes=15)
     async def weekly_snapshot(self):
         now = now_utc()
-        monday = week_monday(now, config.DISPLAY_TZ)
-        local_now = now.astimezone(config.DISPLAY_TZ)
+        monday = week_monday(now, config.SALARY_TZ)
+        local_now = now.astimezone(config.SALARY_TZ)
         if local_now.date() != monday or local_now.time() < config.SALARY_SNAPSHOT_TIME:
             return
         if salaries.load_snapshot(monday):

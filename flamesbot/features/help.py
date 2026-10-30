@@ -36,7 +36,7 @@ COMMANDS = [
     CommandDoc(
         usage="fb.Matches <weekNum> [season]",
         summary=(
-            "When each Flames league plays in that Match week, in Pacific time "
+            "When each Flames league plays in that Match week, in Eastern time "
             "(2s and 3s times per league). `weekNum` is the MLE Match number. "
             "`season` is optional (e.g. `s20`); defaults to the current season."
         ),

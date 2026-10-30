@@ -1,6 +1,7 @@
-"""fb.Matches <weekNum>: when each Flames league plays that week (Pacific time)."""
+"""fb.Matches <weekNum>: when each Flames league plays that week (Eastern time), with results once played."""
 import asyncio
 
+import config
 from flamesbot import db, leagues
 from flamesbot.features.schedule import SeriesRow, group_by_fixture, load_week_series
 from flamesbot.messages import Reply, text_replies
@@ -8,23 +9,36 @@ from flamesbot.season import number_word, resolve_season, resolve_week
 from flamesbot.timeutil import fmt_day_time
 
 
-def _league_line(league: str, series: list[SeriesRow]) -> str:
-    by_mode = {s.mode: s for s in series if s.league == league}
-    label = leagues.label(league)
-    if not by_mode:
-        return f"{label} No match scheduled this week"
+def _result(s: SeriesRow) -> str:
+    """'| :FlamesDub: 4-1 W' once games are recorded, else ''."""
+    if s.games == 0:
+        return ""
+    score = f"{s.team_wins}-{s.opponent_wins}"
+    if s.games < config.SERIES_GAMES and not s.full_ncp:
+        return f" | {score} (in progress)"
+    if s.team_wins > s.opponent_wins:
+        return f" | {config.WIN_EMOJI} {score} W"
+    if s.team_wins < s.opponent_wins:
+        return f" | {config.LOSS_EMOJI} {score} L"
+    return f" | {score} Tie"
 
-    parts = []
+
+def _league_block(league: str, series: list[SeriesRow]) -> list[str]:
+    by_mode = {s.mode: s for s in series if s.league == league}
+    lines = [f"### {leagues.label(league)}"]
+    if not by_mode:
+        return lines + ["No match scheduled this week"]
+
     for mode in leagues.MODE_ORDER:
         s = by_mode.get(mode)
         short = leagues.MODE_SHORT[mode]
         if s is None:
-            parts.append(f"{short} not scheduled")
+            lines.append(f"{short} not scheduled")
         elif s.scheduled_time is None:
-            parts.append(f"{short} time TBD")
+            lines.append(f"{short} time TBD{_result(s)}")
         else:
-            parts.append(f"{short} {fmt_day_time(s.scheduled_time)}")
-    return f"{label} " + " · ".join(parts)
+            lines.append(f"{short} {fmt_day_time(s.scheduled_time)}{_result(s)}")
+    return lines
 
 
 def render(season_number: int, week: int, series: list[SeriesRow], season_over: bool) -> list[Reply]:
@@ -34,7 +48,8 @@ def render(season_number: int, week: int, series: list[SeriesRow], season_over: 
 
     if not groups:
         lines.append(heading)
-        lines += [f"{leagues.label(lg)} No match scheduled this week" for lg in leagues.LEAGUE_ORDER]
+        for lg in leagues.LEAGUE_ORDER:
+            lines += [f"### {leagues.label(lg)}", "No match scheduled this week"]
         lines.append(f"-# No Flames fixture found for Match {week} (bye week?) · Season {season_number}")
         return text_replies(lines)
 
@@ -42,10 +57,11 @@ def render(season_number: int, week: int, series: list[SeriesRow], season_over: 
         if lines:
             lines.append("")
         lines.append(heading if len(groups) == 1 else f"{heading} · Day {i + 1}")
-        lines += [_league_line(lg, group) for lg in leagues.LEAGUE_ORDER]
+        for lg in leagues.LEAGUE_ORDER:
+            lines += _league_block(lg, group)
         first = group[0]
         where = "home" if first.is_home else "away"
-        lines.append(f"-# vs {first.opponent} ({where}) · times in Pacific · Season {season_number}"
+        lines.append(f"-# vs {first.opponent} ({where}) · times in {config.DISPLAY_TZ_LABEL} · Season {season_number}"
                      + (" (completed)" if season_over else ""))
     return text_replies(lines)
 

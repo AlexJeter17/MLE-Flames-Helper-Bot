@@ -35,7 +35,7 @@ Roster = dict[str, dict]  # mleid -> {"name", "salary", "league"}
 # --- snapshot files --------------------------------------------------------
 
 def snapshot_moment(monday: date) -> datetime:
-    return local_to_utc(monday, config.SALARY_SNAPSHOT_TIME, config.DISPLAY_TZ)
+    return local_to_utc(monday, config.SALARY_SNAPSHOT_TIME, config.SALARY_TZ)
 
 
 def _path(monday: date):
@@ -137,12 +137,12 @@ def ensure_snapshot(sess: db.ReadOnlySession, monday: date, now: datetime) -> tu
     if existing:
         return existing, False
 
-    on_time = now.astimezone(config.DISPLAY_TZ).date() == monday
+    on_time = now.astimezone(config.SALARY_TZ).date() == monday
     if on_time:
         return save_snapshot(monday, fetch_live_roster(sess), SOURCE_LIVE), True
 
     roster = fetch_roster_as_of(sess, snapshot_moment(monday))
-    if not roster and monday == week_monday(now, config.DISPLAY_TZ):
+    if not roster and monday == week_monday(now, config.SALARY_TZ):
         # No usable history for this week; live data is the best we have.
         return save_snapshot(monday, fetch_live_roster(sess), SOURCE_LIVE), True
     return save_snapshot(monday, roster, SOURCE_HISTORY), True
@@ -152,7 +152,7 @@ def ensure_current_week(now: datetime | None = None) -> tuple[dict, bool]:
     """Used by the weekly task: make sure this week's snapshot exists."""
     now = now or now_utc()
     with db.session() as sess:
-        return ensure_snapshot(sess, week_monday(now, config.DISPLAY_TZ), now)
+        return ensure_snapshot(sess, week_monday(now, config.SALARY_TZ), now)
 
 
 # --- comparison ------------------------------------------------------------
@@ -213,7 +213,7 @@ class SalUpdateResult:
 
 
 def load(now: datetime) -> SalUpdateResult:
-    monday = week_monday(now, config.DISPLAY_TZ)
+    monday = week_monday(now, config.SALARY_TZ)
     with db.session() as sess:
         current, current_created = ensure_snapshot(sess, monday, now)
 

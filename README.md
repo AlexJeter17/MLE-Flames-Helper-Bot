@@ -13,7 +13,7 @@ Prefix `fb.`, case-insensitive. All commands except `fb.help` are **admin only**
 |---|---|
 | `fb.eligibilty` (alias `fb.eligibility`) | Every rostered Flames player (non-playing staff hidden) by league (ML, CL, AL, FL) with current scrim points: ✅ eligible as of this Monday, 🔜 30+ now but not on Monday, 🟡 15–29, 🔴 under 15 |
 | `fb.salUpdate` | Salary changes between the last two Monday snapshots (old → new, +/-), Promotion/Demotion flags, joins/leaves, plus roster moves since Monday |
-| `fb.Matches <weekNum> [season]` | When each league plays (2s and 3s) in that Match week, in Pacific time. Example: `fb.Matches 3` |
+| `fb.Matches <weekNum> [season]` | When each league plays (2s and 3s) in that Match week, in Eastern time, with W/L once played. Example: `fb.Matches 3` |
 | `fb.WeekResults <weekNum> [season]` | Doubles and Standard results per league with Evidence links and missing results. Example: `fb.WeekResults 3` |
 | `fb.help` | Command list with examples |
 
@@ -77,7 +77,8 @@ to keep test runs out of `data/salaries/`.
   taken automatically on Mondays at 00:05 Pacific from `mledb.player`, keyed by
   `mleid`. If a Monday was missed, or there's no previous week on the first run,
   that Monday is rebuilt from `mledb.player_history`. Each file records its `source`.
-- **Times:** the DB stores UTC; everything shown is Pacific, DST-aware.
+- **Times:** the DB stores UTC; everything shown is Eastern, DST-aware
+  (salary snapshots still run on Pacific Mondays).
 - **Evidence:** `https://evidence.mlesports.gg/matchups/<sprocket match id>/`,
   checked with quick HEAD requests (a few seconds max). Pages that don't exist
   show `Report: not found`. Right now Evidence only hosts recent matches, so S19

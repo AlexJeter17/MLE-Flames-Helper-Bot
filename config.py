@@ -44,8 +44,9 @@ ADMIN_ROLE_IDS = _env_int_list("ADMIN_ROLE_IDS")
 # Season the bot treats as "current". Unset = latest season that has started.
 CURRENT_SEASON = _env_optional_int("CURRENT_SEASON")
 
-# All times shown to users are Pacific (DST handled by zoneinfo).
-DISPLAY_TZ = ZoneInfo(os.getenv("DISPLAY_TZ", "America/Los_Angeles"))
+# All times shown to users are Eastern (DST handled by zoneinfo).
+DISPLAY_TZ = ZoneInfo(os.getenv("DISPLAY_TZ", "America/New_York"))
+DISPLAY_TZ_LABEL = os.getenv("DISPLAY_TZ_LABEL", "Eastern")
 
 # "Eligible as of Monday" = 30+ points in the 30 days before Monday 00:00 in this
 # timezone. MLE match weeks start at midnight Eastern, so that's the default.
@@ -59,7 +60,8 @@ SERIES_GAMES = int(os.getenv("SERIES_GAMES", "5"))
 
 # --- Salary snapshots ------------------------------------------------------
 SALARY_DIR = BASE_DIR / "data" / "salaries"
-# Weekly snapshot moment: Monday at this time, Pacific.
+# Weekly snapshot moment: Monday at this time, in SALARY_TZ (Pacific).
+SALARY_TZ = ZoneInfo(os.getenv("SALARY_TZ", "America/Los_Angeles"))
 SALARY_SNAPSHOT_TIME = time(0, 5)
 
 # --- Evidence reports ------------------------------------------------------
@@ -69,16 +71,18 @@ EVIDENCE_URL_TEMPLATE = os.getenv(
 )
 EVIDENCE_CHECK_TIMEOUT = float(os.getenv("EVIDENCE_CHECK_TIMEOUT", "4"))
 
-# --- League emojis ---------------------------------------------------------
-# Full emoji strings like <:ml:809925633618083870>. Defaults are the MLE main
-# server emojis (from sprocket.game_skill_group_profile); they only render if
-# the bot is also in that server. Set EMOJI_ML="" in .env to use plain text.
+# --- Emojis ----------------------------------------------------------------
+# Written as :Name: and swapped for the server's custom emoji of that name when
+# the bot sends (see cogs/common.py). A full <:name:id> string also works.
+# Set EMOJI_ML="" in .env to use plain text (**ML**).
 LEAGUE_EMOJIS = {
-    "MASTER": os.getenv("EMOJI_ML", "<:ml:809925633618083870>"),
-    "CHAMPION": os.getenv("EMOJI_CL", "<:_cl:809925633642725427>"),
-    "ACADEMY": os.getenv("EMOJI_AL", "<:al:809925633655570470>"),
-    "FOUNDATION": os.getenv("EMOJI_FL", "<:fl:809925633471545364>"),
+    "MASTER": os.getenv("EMOJI_ML", ":ML:"),
+    "CHAMPION": os.getenv("EMOJI_CL", ":CL:"),
+    "ACADEMY": os.getenv("EMOJI_AL", ":AL:"),
+    "FOUNDATION": os.getenv("EMOJI_FL", ":FL:"),
 }
+WIN_EMOJI = os.getenv("EMOJI_WIN", ":FlamesDub:")
+LOSS_EMOJI = os.getenv("EMOJI_LOSS", ":FeelsFlames:")
 
 # --- Logging ---------------------------------------------------------------
 LOG_DIR = BASE_DIR / "logs"

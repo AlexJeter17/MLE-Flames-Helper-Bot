@@ -1,4 +1,4 @@
-"""Timezone helpers. The DB stores UTC; users see Pacific."""
+"""Timezone helpers. The DB stores UTC; users see DISPLAY_TZ (Eastern)."""
 from datetime import date, datetime, time, timedelta, timezone
 from zoneinfo import ZoneInfo
 
@@ -28,7 +28,7 @@ def as_utc(dt: datetime) -> datetime:
 
 
 def fmt_day_time(dt: datetime) -> str:
-    """'Sunday 9pm' / 'Sunday 9:30pm' in Pacific."""
+    """'Sunday 9pm' / 'Sunday 9:30pm' in DISPLAY_TZ."""
     local = as_utc(dt).astimezone(config.DISPLAY_TZ)
     hour = local.strftime("%I").lstrip("0")
     minutes = "" if local.minute == 0 else f":{local.minute:02d}"
